@@ -1224,11 +1224,24 @@
 
   // --- Sistema de Autenticación y Gestión de Usuarios ---
   const loginModal = document.querySelector('#login-modal');
+  const loginTitle = document.querySelector('#login-title');
+  const authSubtitle = document.querySelector('#auth-subtitle');
   const loginForm = document.querySelector('#login-form');
   const loginEmail = document.querySelector('#login-email');
   const loginPassword = document.querySelector('#login-password');
   const loginError = document.querySelector('#login-error');
   const btnLoginSubmit = document.querySelector('#btn-login-submit');
+
+  const registerForm = document.querySelector('#register-form');
+  const registerName = document.querySelector('#register-name');
+  const registerEmail = document.querySelector('#register-email');
+  const registerPassword = document.querySelector('#register-password');
+  const registerPasswordConfirm = document.querySelector('#register-password-confirm');
+  const registerError = document.querySelector('#register-error');
+  const btnRegisterSubmit = document.querySelector('#btn-register-submit');
+
+  const btnGoToRegister = document.querySelector('#btn-go-to-register');
+  const btnGoToLogin = document.querySelector('#btn-go-to-login');
 
   const userModal = document.querySelector('#user-modal');
   const userModalName = document.querySelector('#user-modal-name');
@@ -1236,6 +1249,29 @@
   const btnLogout = document.querySelector('#btn-logout');
   const userEmailDisplay = document.querySelector('#user-email-display');
   const userEmailDisplayDetail = document.querySelector('#user-email-display-detail');
+
+  // Alternar entre modo Login y modo Registro
+  if (btnGoToRegister) {
+    btnGoToRegister.addEventListener('click', () => {
+      loginForm.hidden = true;
+      registerForm.hidden = false;
+      loginTitle.textContent = 'Crear Cuenta';
+      authSubtitle.textContent = 'Crea tu usuario para empezar a guardar tus metas en tu nube privada.';
+      loginError.textContent = '';
+      registerError.textContent = '';
+    });
+  }
+
+  if (btnGoToLogin) {
+    btnGoToLogin.addEventListener('click', () => {
+      registerForm.hidden = true;
+      loginForm.hidden = false;
+      loginTitle.textContent = 'Mis Metas de Ahorro';
+      authSubtitle.textContent = 'Inicia sesión con tu cuenta de usuario para ver y gestionar tus propias metas.';
+      loginError.textContent = '';
+      registerError.textContent = '';
+    });
+  }
 
   function updateAuthUI() {
     if (state.user) {
@@ -1321,6 +1357,75 @@
       } finally {
         btnLoginSubmit.disabled = false;
         btnLoginSubmit.innerHTML = '<span>Iniciar Sesión</span> ↗';
+      }
+    });
+  }
+
+  // Enviar formulario de Registro (Crear usuario nuevo en tabla 'users')
+  if (registerForm) {
+    registerForm.addEventListener('submit', async e => {
+      e.preventDefault();
+      registerError.textContent = '';
+
+      const name = registerName.value.trim();
+      const email = registerEmail.value.trim();
+      const password = registerPassword.value;
+      const passwordConfirm = registerPasswordConfirm.value;
+
+      if (!email || !password) {
+        registerError.textContent = 'El correo y la contraseña son obligatorios.';
+        return;
+      }
+
+      if (password.length < 8) {
+        registerError.textContent = 'La contraseña debe tener al menos 8 caracteres.';
+        return;
+      }
+
+      if (password !== passwordConfirm) {
+        registerError.textContent = 'Las contraseñas no coinciden.';
+        return;
+      }
+
+      try {
+        btnRegisterSubmit.disabled = true;
+        btnRegisterSubmit.innerHTML = '<span>Creando cuenta...</span> ⏳';
+
+        // 1. Crear nuevo registro en la tabla 'users'
+        await pb.collection('users').create({
+          email,
+          password,
+          passwordConfirm,
+          name: name || email.split('@')[0]
+        });
+
+        // 2. Iniciar sesión automáticamente con el nuevo usuario
+        const authData = await pb.collection('users').authWithPassword(email, password);
+        state.user = authData.record;
+        state.user.usersId = authData.record.id;
+
+        updateAuthUI();
+
+        // 3. Inicializar entorno para el nuevo usuario
+        loadLocalData();
+        await loadDataFromPocketBase();
+        refreshCurrentView();
+        subscribeRealtime();
+
+        registerForm.reset();
+      } catch (err) {
+        console.error('Error de registro:', err);
+        const errDetails = err?.data?.data;
+        if (errDetails?.email) {
+          registerError.textContent = 'Este correo electrónico ya está registrado o no es válido.';
+        } else if (errDetails?.password) {
+          registerError.textContent = 'La contraseña no cumple los requisitos (mínimo 8 caracteres).';
+        } else {
+          registerError.textContent = err?.data?.message || err?.message || 'Error al crear la cuenta.';
+        }
+      } finally {
+        btnRegisterSubmit.disabled = false;
+        btnRegisterSubmit.innerHTML = '<span>Crear Cuenta y Entrar</span> ↗';
       }
     });
   }

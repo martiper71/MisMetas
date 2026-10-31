@@ -1779,6 +1779,30 @@ footer {
   justify-content: center;
 }
 
+.auth-switch-line {
+  margin-top: 18px;
+  padding-top: 14px;
+  border-top: 1px solid var(--line);
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.auth-switch-link {
+  background: none;
+  border: none;
+  padding: 0;
+  color: var(--green);
+  font-weight: 700;
+  cursor: pointer;
+  text-decoration: underline;
+  font-family: inherit;
+  font-size: 13px;
+}
+
+.auth-switch-link:hover {
+  color: #1f3623;
+}
+
 .user-info-box {
   display: flex;
   align-items: center;

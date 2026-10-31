@@ -20,8 +20,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=1.06">
-  <link rel="stylesheet" href="overrides.css?v=1.06">
+  <link rel="stylesheet" href="styles.css?v=1.07">
+  <link rel="stylesheet" href="overrides.css?v=1.07">
 </head>
 <body>
   <canvas id="celebration-canvas" class="celebration-canvas" aria-hidden="true"></canvas>
@@ -37,7 +37,7 @@
             <img class="brand-logo" src="media/favicon.png" alt="" width="22" height="22">
             <span>MIS METAS DE AHORRO</span>
           </a>
-          <span class="app-version-badge" id="app-version">v1.06</span>
+          <span class="app-version-badge" id="app-version">v1.07</span>
         </div>
         <div class="topbar-actions">
           <button type="button" class="action-chip btn-pwa-install" id="btn-install-catalog" hidden title="Instalar en tu pantalla de inicio">
@@ -284,7 +284,7 @@
   </main>
 
   <!-- ========================================== -->
-  <!-- MODAL: INICIO DE SESIÓN / AUTENTICACIÓN    -->
+  <!-- MODAL: INICIO DE SESIÓN / REGISTRO         -->
   <!-- ========================================== -->
   <div class="modal-backdrop" id="login-modal" hidden>
     <div class="modal-card auth-card" role="dialog" aria-labelledby="login-title">
@@ -293,9 +293,10 @@
           <img src="media/icono.png" alt="Mis Metas" width="56" height="56">
         </div>
         <h2 id="login-title">Mis Metas de Ahorro</h2>
-        <p class="auth-subtitle">Inicia sesión con tu cuenta de usuario para ver y gestionar tus propias metas.</p>
+        <p class="auth-subtitle" id="auth-subtitle">Inicia sesión con tu cuenta de usuario para ver y gestionar tus propias metas.</p>
       </div>
 
+      <!-- Formulario 1: Iniciar Sesión -->
       <form id="login-form">
         <div class="modal-field">
           <label for="login-email">Correo electrónico o usuario</label>
@@ -313,6 +314,45 @@
           <button type="submit" class="btn-primary auth-submit-btn" id="btn-login-submit">
             <span>Iniciar Sesión</span> ↗
           </button>
+        </div>
+
+        <div class="auth-switch-line">
+          ¿No tienes cuenta? <button type="button" class="auth-switch-link" id="btn-go-to-register">Crear cuenta nueva</button>
+        </div>
+      </form>
+
+      <!-- Formulario 2: Crear Cuenta Nueva / Registro -->
+      <form id="register-form" hidden>
+        <div class="modal-field">
+          <label for="register-name">Tu Nombre (opcional)</label>
+          <input type="text" id="register-name" placeholder="Ej. Carlos, Laura..." maxlength="40" autocomplete="name">
+        </div>
+
+        <div class="modal-field">
+          <label for="register-email">Correo electrónico *</label>
+          <input type="email" id="register-email" placeholder="tu-email@gmail.com" required autocomplete="email">
+        </div>
+
+        <div class="modal-field">
+          <label for="register-password">Contraseña (mínimo 8 caracteres) *</label>
+          <input type="password" id="register-password" placeholder="Crea tu contraseña" minlength="8" required autocomplete="new-password">
+        </div>
+
+        <div class="modal-field">
+          <label for="register-password-confirm">Confirmar Contraseña *</label>
+          <input type="password" id="register-password-confirm" placeholder="Repite la contraseña" minlength="8" required autocomplete="new-password">
+        </div>
+
+        <p class="form-message" id="register-error"></p>
+
+        <div class="auth-actions">
+          <button type="submit" class="btn-primary auth-submit-btn" id="btn-register-submit">
+            <span>Crear Cuenta y Entrar</span> ↗
+          </button>
+        </div>
+
+        <div class="auth-switch-line">
+          ¿Ya tienes cuenta? <button type="button" class="auth-switch-link" id="btn-go-to-login">Iniciar sesión</button>
         </div>
       </form>
     </div>
@@ -485,6 +525,6 @@
   </div>
 
   <script src="pocketbase.umd.js"></script>
-  <script src="app.js?v=1.06"></script>
+  <script src="app.js?v=1.07"></script>
 </body>
 </html>
