@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 320" width="100%" height="100%">
+  <defs>
+    <linearGradient id="mb-screen-bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#1b2e23"/>
+      <stop offset="50%" stop-color="#2c4736"/>
+      <stop offset="100%" stop-color="#3d644c"/>
+    </linearGradient>
+    <linearGradient id="mb-metal" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#e2e4dd"/>
+      <stop offset="100%" stop-color="#b6b9af"/>
+    </linearGradient>
+    <filter id="mb-shadow" x="-10%" y="-10%" width="120%" height="130%">
+      <feDropShadow dx="0" dy="16" stdDeviation="14" flood-color="#1e2621" flood-opacity="0.25"/>
+    </filter>
+  </defs>
+  
+  <g filter="url(#mb-shadow)">
+    <!-- Pantalla / Marco Superior -->
+    <rect x="55" y="30" width="290" height="190" rx="14" fill="#1e211d" stroke="#52584e" stroke-width="2"/>
+    <!-- Cristal de Pantalla -->
+    <rect x="67" y="42" width="266" height="166" rx="6" fill="url(#mb-screen-bg)"/>
+    <!-- Wallpaper abstracto sutil -->
+    <circle cx="200" cy="125" r="45" fill="#719179" opacity="0.4"/>
+    <ellipse cx="230" cy="140" rx="60" ry="30" fill="#9dbba4" opacity="0.3"/>
+    <!-- Notch / Cámara FaceTime -->
+    <rect x="186" y="42" width="28" height="8" rx="4" fill="#1e211d"/>
+    <circle cx="200" cy="46" r="1.5" fill="#5c7a65"/>
+    <!-- Bisagra central -->
+    <rect x="150" y="218" width="100" height="8" rx="2" fill="#161815"/>
+    <!-- Base Unibody -->
+    <path d="M20 226 C20 223 24 220 28 220 H372 C376 220 380 223 380 226 V232 C380 242 372 250 362 250 H38 C28 250 20 242 20 232 Z" fill="url(#mb-metal)"/>
+    <!-- Muesca de apertura central -->
+    <path d="M172 220 H228 V225 C228 227 226 229 224 229 H176 C174 229 172 227 172 225 Z" fill="#888c82"/>
+  </g>
+</svg>

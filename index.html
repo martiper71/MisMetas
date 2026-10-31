@@ -1,0 +1,490 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#f5f4f0">
+  <title>Mis Metas · Hucha Visual</title>
+  
+  <!-- PWA & Apple Web App Meta -->
+  <link rel="manifest" href="manifest.json">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Mis Metas">
+  <link rel="apple-touch-icon" href="media/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="media/icon-192.png">
+  <link rel="icon" type="image/png" sizes="512x512" href="media/icon-512.png">
+  <link rel="icon" type="image/png" sizes="64x64" href="media/favicon.png">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css?v=1.06">
+  <link rel="stylesheet" href="overrides.css?v=1.06">
+</head>
+<body>
+  <canvas id="celebration-canvas" class="celebration-canvas" aria-hidden="true"></canvas>
+
+  <main class="page-shell">
+    <!-- ========================================== -->
+    <!-- VISTA 1: CATÁLOGO DE PRODUCTOS / METAS     -->
+    <!-- ========================================== -->
+    <section id="view-catalog" class="app-view">
+      <header class="topbar">
+        <div class="brand-wrap">
+          <a class="wordmark" href="#">
+            <img class="brand-logo" src="media/favicon.png" alt="" width="22" height="22">
+            <span>MIS METAS DE AHORRO</span>
+          </a>
+          <span class="app-version-badge" id="app-version">v1.06</span>
+        </div>
+        <div class="topbar-actions">
+          <button type="button" class="action-chip btn-pwa-install" id="btn-install-catalog" hidden title="Instalar en tu pantalla de inicio">
+            <span class="chip-icon">📲</span> Instalar
+          </button>
+          <button type="button" class="action-chip" id="btn-user-profile" title="Usuario conectado">
+            <span class="chip-icon">👤</span> <span id="user-email-display">Usuario</span>
+          </button>
+          <button type="button" class="action-chip" id="btn-open-backup-catalog" title="Copia de seguridad (Exportar/Importar)">
+            <span class="chip-icon">💾</span> Datos
+          </button>
+          <button type="button" class="btn-primary-pill" id="btn-create-product">
+            <span>+</span> Nuevo Producto
+          </button>
+        </div>
+      </header>
+
+      <section class="catalog-hero">
+        <div class="catalog-hero-text">
+          <p class="eyebrow">TUS OBJETIVOS, A TU RITMO</p>
+          <h1>Visualiza lo que quieres.<br><span>Consíguelo paso a paso.</span></h1>
+          <p class="intro">Registra tus compras deseadas, sigue el avance visual de cada una y descubre cómo tus ahorros cobran vida.</p>
+        </div>
+
+        <div class="global-summary-card">
+          <div class="summary-head">
+            <span class="summary-label">TOTAL AHORRADO EN TODAS LAS METAS</span>
+            <span class="summary-badge" id="catalog-active-count">0 activas</span>
+          </div>
+          <div class="summary-amount-line">
+            <span id="catalog-global-saved">0 €</span>
+            <span class="summary-goal" id="catalog-global-goal">/ 0 €</span>
+          </div>
+          <div class="progress-track" role="progressbar" aria-label="Progreso global de ahorro">
+            <div class="progress-fill" id="catalog-global-fill"></div>
+          </div>
+          <div class="summary-foot">
+            <span id="catalog-global-percent">0% completado</span>
+            <span id="catalog-completed-count">0 metas conseguidas</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="products-section">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">CATÁLOGO</p>
+            <h2>Tus productos en seguimiento</h2>
+          </div>
+        </div>
+
+        <div class="products-grid" id="products-grid">
+          <!-- Las tarjetas de productos se renderizan dinámicamente aquí -->
+        </div>
+      </section>
+    </section>
+
+
+    <!-- ========================================== -->
+    <!-- VISTA 2: DETALLE Y SEGUIMIENTO DEL PRODUCTO-->
+    <!-- ========================================== -->
+    <section id="view-detail" class="app-view" hidden>
+      <header class="topbar">
+        <button type="button" class="back-link" id="btn-back-to-catalog">
+          <span class="back-arrow">←</span>
+          <span>TODOS LOS PRODUCTOS</span>
+        </button>
+        <div class="topbar-actions">
+          <button type="button" class="action-chip" id="btn-user-profile-detail" title="Usuario conectado">
+            <span class="chip-icon">👤</span> <span id="user-email-display-detail">Usuario</span>
+          </button>
+          <button type="button" class="action-chip" id="btn-open-backup-detail" title="Copia de seguridad (Exportar/Importar)">
+            <span class="chip-icon">💾</span> Datos
+          </button>
+          <button type="button" class="goal-chip" id="btn-edit-current-product" title="Editar objetivo de este producto">
+            <span class="sparkle">✳</span>
+            <span id="topbar-goal-label">OBJETIVO <strong>2.000 €</strong></span>
+            <span class="edit-badge">✎</span>
+          </button>
+        </div>
+      </header>
+
+      <section class="hero" aria-labelledby="main-title">
+        <div class="hero-copy">
+          <p class="eyebrow" id="hero-eyebrow">POCO A POCO, MÁS CERCA</p>
+          <h1 id="main-title">El objetivo está más cerca.<br><span id="hero-model-tag">iPhone 20.</span></h1>
+          <p class="intro">Cada pequeño ahorro te acerca a tu meta. Añade tus avances y mira cómo se va completando.</p>
+          
+          <div class="progress-summary">
+            <div class="money-line">
+              <span id="saved-total">0 €</span>
+              <span class="goal-total" id="goal-total-display">/ 2.000 €</span>
+            </div>
+            <div class="progress-track" role="progressbar" aria-label="Progreso del ahorro" aria-valuemin="0" aria-valuemax="2000" aria-valuenow="0">
+              <div class="progress-fill" id="progress-fill"></div>
+            </div>
+            <div class="progress-foot">
+              <span id="progress-label">0% del objetivo</span>
+              <span id="remaining-label">Te faltan 2.000 €</span>
+            </div>
+          </div>
+
+          <!-- Métricas inteligentes -->
+          <div class="stats-pills" id="stats-pills">
+            <div class="stat-pill" title="Ritmo medio ahorrado por mes">
+              <span class="stat-pill-label">Ritmo mensual</span>
+              <strong class="stat-pill-val" id="stat-monthly">0 €/mes</strong>
+            </div>
+            <div class="stat-pill" title="Estimación según tu ritmo actual">
+              <span class="stat-pill-label">Meta estimada</span>
+              <strong class="stat-pill-val" id="stat-eta">Calculando...</strong>
+            </div>
+            <div class="stat-pill" title="Aportación media por ingreso">
+              <span class="stat-pill-label">Media / ingreso</span>
+              <strong class="stat-pill-val" id="stat-avg">0 €</strong>
+            </div>
+          </div>
+        </div>
+
+        <div class="phone-stage" aria-label="Visualizador interactivo de ahorro del producto">
+          <div class="stage-glow" id="stage-glow"></div>
+          <div class="stage-caption">
+            <span class="caption-line"></span>
+            <span id="stage-model-badge">TU PRÓXIMA META</span>
+          </div>
+          
+          <div class="phone-frame" id="phone-frame">
+            <!-- Silueta en escala de grises de fondo -->
+            <img class="phone-image phone-silhouette" id="detail-img-silhouette" src="media/iPhone20.png" alt="" draggable="false">
+            <!-- Imagen que se va revelando a color -->
+            <img class="phone-image phone-color" id="detail-img-color" src="media/iPhone20.png" alt="Progreso" draggable="false">
+            <!-- Línea líquida de nivel -->
+            <div class="level-indicator" id="level-indicator">
+              <span class="level-tag" id="level-tag">0%</span>
+            </div>
+          </div>
+
+          <div class="reveal-note" id="reveal-note">Empieza a ahorrar para revelar tu producto</div>
+          <div class="stage-index">
+            <span id="stage-code">META</span>
+            <span class="pulse-dot">●</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="dashboard" aria-label="Registro de ahorro de este producto">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">TU CAMINO</p>
+            <h2>El ahorro, paso a paso</h2>
+          </div>
+          <div class="heading-controls">
+            <span class="entry-count" id="entry-count">0 aportaciones</span>
+          </div>
+        </div>
+
+        <div class="dashboard-grid">
+          <!-- Formulario de aportaciones / gastos -->
+          <form class="add-card" id="saving-form">
+            <div class="card-heading">
+              <span class="plus-icon" id="form-type-icon">+</span>
+              <div>
+                <h3 id="form-title">Apunta un movimiento</h3>
+                <p>Todo suma (o resta si hubo imprevisto) para tu producto.</p>
+              </div>
+            </div>
+
+            <div class="type-toggle-group" role="group" aria-label="Tipo de movimiento">
+              <button type="button" class="type-btn active" data-type="deposit">
+                <span class="type-dot"></span> Ahorro (+)
+              </button>
+              <button type="button" class="type-btn" data-type="withdraw">
+                <span class="type-dot withdraw"></span> Gasto / Retirada (−)
+              </button>
+            </div>
+
+            <label for="concept">Concepto</label>
+            <input id="concept" name="concept" placeholder="Ej. Venta Wallapop, Bizum, Nómina..." maxlength="60" required>
+
+            <div class="input-row">
+              <div class="amount-field">
+                <label for="amount">Importe</label>
+                <div class="amount-input">
+                  <input id="amount" name="amount" type="number" min="0.01" step="0.01" placeholder="0,00" required>
+                  <span>€</span>
+                </div>
+              </div>
+              <div class="category-field">
+                <label for="category">Categoría</label>
+                <select id="category" name="category">
+                  <option value="wallapop">📦 Venta / Segunda mano</option>
+                  <option value="salary">💼 Sueldo / Nómina</option>
+                  <option value="gift">🎁 Regalo / Cumple</option>
+                  <option value="saving" selected>☕ Recorte / Ahorro</option>
+                  <option value="other">✨ Otro ingreso</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="date-field">
+              <label for="date">Fecha</label>
+              <input id="date" name="date" type="date" required>
+            </div>
+
+            <button class="submit-button" type="submit" id="submit-btn">
+              Añadir al ahorro <span>↗</span>
+            </button>
+            <p class="form-message" id="form-message" aria-live="polite"></p>
+          </form>
+
+          <!-- Historial de movimientos -->
+          <div class="history-card">
+            <div class="history-header">
+              <div>
+                <h3>Movimientos en esta meta</h3>
+                <p>Historial ordenado de aportaciones.</p>
+              </div>
+              <div class="history-filter-wrap">
+                <select id="filter-category" class="filter-select" aria-label="Filtrar por categoría">
+                  <option value="all">Todas las categorías</option>
+                  <option value="wallapop">📦 Ventas</option>
+                  <option value="salary">💼 Sueldo / Extra</option>
+                  <option value="gift">🎁 Regalos</option>
+                  <option value="saving">☕ Ahorro diario</option>
+                  <option value="other">✨ Otros</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="entries" id="entries"></div>
+            <div class="empty-state" id="empty-state">
+              <span class="empty-mark">＋</span>
+              <p>Aún no hay aportaciones para este producto.<br><strong>¡El primer euro marca el comienzo!</strong></p>
+            </div>
+          </div>
+        </div>
+      </section>
+    </section>
+
+    <footer>
+      <span>HECHO DE PEQUEÑOS PASOS</span>
+      <span>Tus metas de ahorro, a tu ritmo <span class="footer-heart">♥</span></span>
+    </footer>
+  </main>
+
+  <!-- ========================================== -->
+  <!-- MODAL: INICIO DE SESIÓN / AUTENTICACIÓN    -->
+  <!-- ========================================== -->
+  <div class="modal-backdrop" id="login-modal" hidden>
+    <div class="modal-card auth-card" role="dialog" aria-labelledby="login-title">
+      <div class="auth-header">
+        <div class="auth-icon-wrap">
+          <img src="media/icono.png" alt="Mis Metas" width="56" height="56">
+        </div>
+        <h2 id="login-title">Mis Metas de Ahorro</h2>
+        <p class="auth-subtitle">Inicia sesión con tu cuenta de usuario para ver y gestionar tus propias metas.</p>
+      </div>
+
+      <form id="login-form">
+        <div class="modal-field">
+          <label for="login-email">Correo electrónico o usuario</label>
+          <input type="email" id="login-email" placeholder="tu-email@gmail.com" required autocomplete="username">
+        </div>
+
+        <div class="modal-field">
+          <label for="login-password">Contraseña</label>
+          <input type="password" id="login-password" placeholder="Tu contraseña" required autocomplete="current-password">
+        </div>
+
+        <p class="form-message" id="login-error"></p>
+
+        <div class="auth-actions">
+          <button type="submit" class="btn-primary auth-submit-btn" id="btn-login-submit">
+            <span>Iniciar Sesión</span> ↗
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Menú de Usuario / Cerrar Sesión -->
+  <div class="modal-backdrop" id="user-modal" hidden>
+    <div class="modal-card" style="max-width: 380px;" role="dialog" aria-labelledby="user-modal-title">
+      <div class="modal-head">
+        <h3 id="user-modal-title">Tu Cuenta</h3>
+        <button type="button" class="modal-close" data-close="user-modal">✕</button>
+      </div>
+      <div class="user-info-box">
+        <div class="user-avatar-circle">👤</div>
+        <div>
+          <strong id="user-modal-name">Usuario</strong>
+          <small id="user-modal-email" style="display:block; color:var(--muted); font-size:11px;">usuario@correo.com</small>
+          <span class="user-status-online">● Sesión iniciada</span>
+        </div>
+      </div>
+      <div class="modal-actions" style="margin-top: 24px;">
+        <button type="button" class="btn-danger-outline" id="btn-logout" style="width: 100%;">
+          Cerrar Sesión
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- MODALES                                    -->
+  <!-- ========================================== -->
+
+  <!-- Modal: Crear / Editar Producto -->
+  <div class="modal-backdrop" id="product-modal" hidden>
+    <div class="modal-card" role="dialog" aria-labelledby="product-modal-title">
+      <div class="modal-head">
+        <h3 id="product-modal-title">Nuevo Producto de Ahorro</h3>
+        <button type="button" class="modal-close" data-close="product-modal">✕</button>
+      </div>
+      <form id="product-form">
+        <input type="hidden" id="product-id">
+        <div class="modal-field">
+          <label for="product-name">Nombre del producto</label>
+          <input type="text" id="product-name" placeholder="Ej. iPhone 16 Pro, MacBook Air, PlayStation 5, Viaje a Roma..." maxlength="50" required>
+        </div>
+
+        <div class="modal-field">
+          <label for="product-goal">Precio objetivo (€)</label>
+          <div class="amount-input">
+            <input type="number" id="product-goal" min="1" step="1" placeholder="Ej. 1299" required>
+            <span>€</span>
+          </div>
+          <div class="preset-chips" id="product-preset-chips">
+            <button type="button" class="preset-chip" data-val="550">550 €</button>
+            <button type="button" class="preset-chip" data-val="999">999 €</button>
+            <button type="button" class="preset-chip" data-val="1249">1.249 €</button>
+            <button type="button" class="preset-chip" data-val="1499">1.499 €</button>
+            <button type="button" class="preset-chip" data-val="2000">2.000 €</button>
+          </div>
+        </div>
+
+        <div class="modal-field">
+          <label>Foto / Imagen del producto *</label>
+          <div class="upload-dropzone" id="upload-dropzone">
+            <input type="file" id="product-file-input" accept="image/*" class="dropzone-file-input">
+            <div class="dropzone-empty" id="dropzone-empty">
+              <span class="dropzone-icon">📷</span>
+              <p class="dropzone-prompt"><strong>Haz clic para subir una foto</strong> o arrástrala aquí</p>
+              <span class="dropzone-hint">PNG, JPG, WEBP o SVG (preferiblemente silueta o con fondo transparente)</span>
+            </div>
+            <div class="dropzone-preview" id="dropzone-preview" hidden>
+              <img id="preview-image" src="" alt="Vista previa">
+              <div class="preview-actions">
+                <span class="preview-filename" id="preview-filename">Imagen cargada</span>
+                <button type="button" class="btn-change-image" id="btn-change-image">Cambiar foto</button>
+              </div>
+            </div>
+          </div>
+          <input type="hidden" id="product-image-val" value="">
+          <p class="form-message" id="product-img-error"></p>
+        </div>
+
+        <div class="modal-field">
+          <label for="product-date">Fecha objetivo deseada (opcional)</label>
+          <input type="date" id="product-date">
+        </div>
+
+        <div class="modal-actions">
+          <button type="button" class="btn-secondary" data-close="product-modal">Cancelar</button>
+          <button type="submit" class="btn-primary" id="btn-save-product">Guardar producto</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Edición de movimiento -->
+  <div class="modal-backdrop" id="edit-modal" hidden>
+    <div class="modal-card" role="dialog" aria-labelledby="edit-modal-title">
+      <div class="modal-head">
+        <h3 id="edit-modal-title">Editar movimiento</h3>
+        <button type="button" class="modal-close" data-close="edit-modal">✕</button>
+      </div>
+      <form id="edit-form">
+        <input type="hidden" id="edit-id">
+        <div class="modal-field">
+          <label for="edit-concept">Concepto</label>
+          <input type="text" id="edit-concept" maxlength="60" required>
+        </div>
+        <div class="input-row">
+          <div class="amount-field">
+            <label for="edit-amount">Importe (€)</label>
+            <div class="amount-input">
+              <input type="number" id="edit-amount" min="0.01" step="0.01" required>
+              <span>€</span>
+            </div>
+          </div>
+          <div class="category-field">
+            <label for="edit-category">Categoría</label>
+            <select id="edit-category">
+              <option value="wallapop">📦 Venta / Segunda mano</option>
+              <option value="salary">💼 Sueldo / Nómina</option>
+              <option value="gift">🎁 Regalo / Cumple</option>
+              <option value="saving">☕ Recorte / Ahorro</option>
+              <option value="other">✨ Otro</option>
+            </select>
+          </div>
+        </div>
+        <div class="modal-field">
+          <label for="edit-date">Fecha</label>
+          <input type="date" id="edit-date" required>
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn-secondary" data-close="edit-modal">Cancelar</button>
+          <button type="submit" class="btn-primary">Guardar cambios</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Copia de seguridad (Exportar / Importar) -->
+  <div class="modal-backdrop" id="backup-modal" hidden>
+    <div class="modal-card" role="dialog" aria-labelledby="backup-modal-title">
+      <div class="modal-head">
+        <h3 id="backup-modal-title">Copia de Seguridad y Datos</h3>
+        <button type="button" class="modal-close" data-close="backup-modal">✕</button>
+      </div>
+      <div class="backup-options">
+        <div class="backup-block">
+          <h4>Exportar todas las metas</h4>
+          <p>Descarga un archivo JSON con todos tus productos dados de alta y sus historiales completos.</p>
+          <button type="button" class="btn-secondary" id="btn-export-json">📥 Descargar copia (.json)</button>
+        </div>
+        <div class="backup-divider"></div>
+        <div class="backup-block">
+          <h4>Restaurar copia</h4>
+          <p>Selecciona un archivo JSON exportado previamente para recuperar todas tus metas.</p>
+          <label class="btn-secondary file-label" for="import-file-input">
+            📤 Seleccionar archivo JSON
+          </label>
+          <input type="file" id="import-file-input" accept=".json" hidden>
+        </div>
+        <div class="backup-divider"></div>
+        <div class="backup-block danger-block">
+          <h4>Reiniciar aplicación</h4>
+          <p>Borra todos los productos y movimientos registrados en este navegador.</p>
+          <button type="button" class="btn-danger-outline" id="btn-reset-all">Borrar todo</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="pocketbase.umd.js"></script>
+  <script src="app.js?v=1.06"></script>
+</body>
+</html>

@@ -1,0 +1,37 @@
+{
+  "name": "Mis Metas · Hucha de Ahorro",
+  "short_name": "Mis Metas",
+  "description": "Visualiza y sigue el avance de ahorro de tus compras deseadas.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f5f4f0",
+  "theme_color": "#1a84f3",
+  "orientation": "any",
+  "categories": ["finance", "lifestyle", "productivity"],
+  "icons": [
+    {
+      "src": "media/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "media/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "media/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png"
+    },
+    {
+      "src": "media/icono.png",
+      "sizes": "1254x1254",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

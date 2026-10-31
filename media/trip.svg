@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 380 340" width="100%" height="100%">
+  <defs>
+    <linearGradient id="globe-bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#e8efe9"/>
+      <stop offset="100%" stop-color="#c9dcce"/>
+    </linearGradient>
+    <filter id="trip-shadow" x="-15%" y="-10%" width="130%" height="130%">
+      <feDropShadow dx="0" dy="16" stdDeviation="15" flood-color="#1e2621" flood-opacity="0.22"/>
+    </filter>
+  </defs>
+  
+  <g filter="url(#trip-shadow)">
+    <!-- Globo terráqueo estilizado de fondo -->
+    <circle cx="190" cy="170" r="115" fill="url(#globe-bg)" stroke="#7fa088" stroke-width="2"/>
+    <!-- Meridianos y paralelos sutiles -->
+    <ellipse cx="190" cy="170" rx="65" ry="115" fill="none" stroke="#9bbba4" stroke-width="1.5" stroke-dasharray="6 4"/>
+    <ellipse cx="190" cy="170" rx="115" ry="50" fill="none" stroke="#9bbba4" stroke-width="1.5" stroke-dasharray="6 4"/>
+    
+    <!-- Avión moderno despegando en diagonal -->
+    <g transform="translate(45, -20) rotate(15, 190, 170)">
+      <!-- Estela de vuelo -->
+      <path d="M60 210 Q 130 190 200 160" stroke="#719179" stroke-width="3" stroke-dasharray="8 6" fill="none" opacity="0.6"/>
+      <!-- Fuselaje -->
+      <path d="M260 120 C270 125 270 135 255 145 L150 195 L110 240 L100 238 L115 195 L65 210 L50 230 L40 228 L48 205 L40 190 L50 188 L65 190 L115 160 L100 100 L110 98 L150 150 L240 115 Z" fill="#315e49" stroke="#1f4030" stroke-width="2"/>
+      <!-- Cabina de cristal -->
+      <polygon points="245,123 255,127 248,133 238,129" fill="#9dbda6"/>
+    </g>
+  </g>
+</svg>
