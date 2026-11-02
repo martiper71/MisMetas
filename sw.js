@@ -1,4 +1,4 @@
-const CACHE_NAME = 'mis-metas-pwa-v1.07';
+const CACHE_NAME = 'mis-metas-pwa-v1.08';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',

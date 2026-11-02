@@ -780,6 +780,7 @@
 
     if (!Number.isFinite(amount) || amount <= 0) {
       message.textContent = 'Introduce un importe válido mayor que 0 €.';
+      message.style.color = '#ef4444';
       return;
     }
 
@@ -795,7 +796,27 @@
       created: Date.now()
     };
 
-    // Guardar en PocketBase si estamos conectados (vinculando user)
+    // 1. Añadir inmediatamente a local y refrescar UI de forma instantánea
+    product.entries.push(newEntry);
+
+    // Si el usuario tenía un filtro activo que ocultaría la nueva entrada, restablecer a "all"
+    if (state.currentFilter !== 'all' && state.currentFilter !== newEntry.category) {
+      state.currentFilter = 'all';
+      if (filterSelect) filterSelect.value = 'all';
+    }
+
+    saveLocalData();
+    renderDetail();
+
+    savingForm.reset();
+    dateInput.value = todayStr;
+    message.style.color = '#10b981';
+    message.textContent = '✓ Movimiento guardado correctamente';
+    setTimeout(() => {
+      if (message.textContent.includes('guardado')) message.textContent = '';
+    }, 3000);
+
+    // 2. Guardar en PocketBase en segundo plano
     if (pb && state.user && product.id && !product.id.startsWith('prod-')) {
       try {
         const pbRecord = await pb.collection('entries').create({
@@ -808,18 +829,13 @@
           date: newEntry.date
         });
         newEntry.id = pbRecord.id;
+        saveLocalData();
       } catch (err) {
         console.warn('Error guardando movimiento en PocketBase:', err);
+        message.style.color = '#f59e0b';
+        message.textContent = 'Guardado localmente (pendiente de sincronizar con servidor).';
       }
     }
-
-    product.entries.push(newEntry);
-    saveLocalData();
-    renderDetail();
-
-    savingForm.reset();
-    dateInput.value = todayStr;
-    message.textContent = '';
   });
 
   // Filtro de Categoría
