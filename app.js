@@ -561,12 +561,16 @@
 
     // Actualizar textos y títulos
     const brandName = product.name.toUpperCase();
-    document.querySelector('#topbar-goal-label').innerHTML = `OBJETIVO <strong>${euros(goal)}</strong>`;
+    const topbarGoalLabel = document.querySelector('#topbar-goal-label');
+    if (topbarGoalLabel) topbarGoalLabel.innerHTML = `OBJETIVO <strong>${euros(goal)}</strong>`;
     const heroModelTag = document.querySelector('#hero-model-tag');
     if (heroModelTag) heroModelTag.textContent = `${product.name}.`;
-    document.querySelector('#goal-total-display').textContent = `/ ${euros(goal)}`;
-    document.querySelector('#stage-model-badge').textContent = brandName;
-    document.querySelector('#stage-code').textContent = product.name.slice(0, 10).toUpperCase();
+    const goalTotalDisplay = document.querySelector('#goal-total-display');
+    if (goalTotalDisplay) goalTotalDisplay.textContent = `/ ${euros(goal)}`;
+    const stageModelBadge = document.querySelector('#stage-model-badge');
+    if (stageModelBadge) stageModelBadge.textContent = brandName;
+    const stageCode = document.querySelector('#stage-code');
+    if (stageCode) stageCode.textContent = product.name.slice(0, 10).toUpperCase();
 
     // Actualizar imágenes del visor (silueta y color)
     const silhouetteImg = document.querySelector('#detail-img-silhouette');
