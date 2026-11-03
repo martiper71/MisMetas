@@ -135,17 +135,26 @@
           imgSrc = pb.files.getURL(p, p.image);
         }
 
-        const entries = eRecords
+        // Combinar con los movimientos de PocketBase preservando los no sincronizados o temporales
+        const serverEntries = eRecords
           .filter(e => e.product === p.id)
           .map(e => ({
             id: e.id,
-            concept: e.concept,
+            concept: e.concept || '',
             amount: Number(e.amount) || 0,
             category: e.category || 'saving',
             type: e.type || 'deposit',
             date: e.date || new Date().toISOString().slice(0, 10),
             created: new Date(e.created).getTime() || Date.now()
           }));
+
+        // Mantener entradas pendientes o añadidas localmente que todavía no han sido devueltas por PB
+        const currentProduct = state.products.find(sp => sp.id === p.id);
+        const pendingEntries = (currentProduct && Array.isArray(currentProduct.entries))
+          ? currentProduct.entries.filter(le => !serverEntries.some(se => se.id === le.id))
+          : [];
+
+        const entries = [...serverEntries, ...pendingEntries];
 
         return {
           id: p.id,
@@ -664,7 +673,13 @@
 
     emptyNode.hidden = filtered.length > 0;
 
-    const sorted = [...filtered].sort((a, b) => b.date.localeCompare(a.date) || (b.created || 0) - (a.created || 0));
+    const sorted = [...filtered].sort((a, b) => {
+      const dateA = String(a.date || '');
+      const dateB = String(b.date || '');
+      const cmp = dateB.localeCompare(dateA);
+      if (cmp !== 0) return cmp;
+      return (Number(b.created) || 0) - (Number(a.created) || 0);
+    });
 
     sorted.forEach(item => {
       const date = safeDate(item.date);
@@ -828,6 +843,11 @@
           type: newEntry.type,
           date: newEntry.date
         });
+        // Actualizar el ID provisional con el asignado por PocketBase
+        const targetEntry = product.entries.find(e => e.id === newEntry.id);
+        if (targetEntry) {
+          targetEntry.id = pbRecord.id;
+        }
         newEntry.id = pbRecord.id;
         saveLocalData();
       } catch (err) {
@@ -1147,6 +1167,7 @@
   const backupModal = document.querySelector('#backup-modal');
   const btnOpenBackupCatalog = document.querySelector('#btn-open-backup-catalog');
   const btnOpenBackupDetail = document.querySelector('#btn-open-backup-detail');
+  const btnOpenBackupFromUser = document.querySelector('#btn-open-backup-from-user');
   if (btnOpenBackupCatalog) {
     btnOpenBackupCatalog.addEventListener('click', e => {
       e.preventDefault();
@@ -1156,6 +1177,13 @@
   if (btnOpenBackupDetail) {
     btnOpenBackupDetail.addEventListener('click', e => {
       e.preventDefault();
+      openModal(backupModal);
+    });
+  }
+  if (btnOpenBackupFromUser) {
+    btnOpenBackupFromUser.addEventListener('click', e => {
+      e.preventDefault();
+      closeModal(userModal);
       openModal(backupModal);
     });
   }

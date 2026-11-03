@@ -20,8 +20,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=1.08">
-  <link rel="stylesheet" href="overrides.css?v=1.08">
+  <link rel="stylesheet" href="styles.css?v=1.09">
+  <link rel="stylesheet" href="overrides.css?v=1.09">
 </head>
 <body>
   <canvas id="celebration-canvas" class="celebration-canvas" aria-hidden="true"></canvas>
@@ -37,20 +37,11 @@
             <img class="brand-logo" src="media/favicon.png" alt="" width="22" height="22">
             <span>MIS METAS DE AHORRO</span>
           </a>
-          <span class="app-version-badge" id="app-version">v1.08</span>
+          <span class="app-version-badge" id="app-version">v1.09</span>
         </div>
         <div class="topbar-actions">
-          <button type="button" class="action-chip btn-pwa-install" id="btn-install-catalog" hidden title="Instalar en tu pantalla de inicio">
-            <span class="chip-icon">📲</span> Instalar
-          </button>
           <button type="button" class="action-chip" id="btn-user-profile" title="Usuario conectado">
             <span class="chip-icon">👤</span> <span id="user-email-display">Usuario</span>
-          </button>
-          <button type="button" class="action-chip" id="btn-open-backup-catalog" title="Copia de seguridad (Exportar/Importar)">
-            <span class="chip-icon">💾</span> Datos
-          </button>
-          <button type="button" class="btn-primary-pill" id="btn-create-product">
-            <span>+</span> Nuevo Producto
           </button>
         </div>
       </header>
@@ -108,14 +99,6 @@
         <div class="topbar-actions">
           <button type="button" class="action-chip" id="btn-user-profile-detail" title="Usuario conectado">
             <span class="chip-icon">👤</span> <span id="user-email-display-detail">Usuario</span>
-          </button>
-          <button type="button" class="action-chip" id="btn-open-backup-detail" title="Copia de seguridad (Exportar/Importar)">
-            <span class="chip-icon">💾</span> Datos
-          </button>
-          <button type="button" class="goal-chip" id="btn-edit-current-product" title="Editar objetivo de este producto">
-            <span class="sparkle">✳</span>
-            <span id="topbar-goal-label">OBJETIVO <strong>2.000 €</strong></span>
-            <span class="edit-badge">✎</span>
           </button>
         </div>
       </header>
@@ -373,7 +356,10 @@
           <span class="user-status-online">● Sesión iniciada</span>
         </div>
       </div>
-      <div class="modal-actions" style="margin-top: 24px;">
+      <div class="modal-actions" style="margin-top: 24px; display: flex; flex-direction: column; gap: 10px;">
+        <button type="button" class="btn-secondary" id="btn-open-backup-from-user" style="width: 100%;">
+          💾 Copia de Seguridad y Datos
+        </button>
         <button type="button" class="btn-danger-outline" id="btn-logout" style="width: 100%;">
           Cerrar Sesión
         </button>
@@ -525,6 +511,6 @@
   </div>
 
   <script src="pocketbase.umd.js"></script>
-  <script src="app.js?v=1.08"></script>
+  <script src="app.js?v=1.09"></script>
 </body>
 </html>
