@@ -148,10 +148,17 @@
             created: new Date(e.created).getTime() || Date.now()
           }));
 
-        // Mantener entradas pendientes o añadidas localmente que todavía no han sido devueltas por PB
+        // Los movimientos de PocketBase son la fuente de verdad (serverEntries).
+        // Solo conservamos como 'pendientes' las entradas locales temporales que todavía no
+        // han recibido ID de servidor (por ejemplo mientras se crea el registro offline/asíncrono).
+        // Cualquier entrada con ID de PocketBase (15 caracteres alfanuméricos) que ya no exista
+        // en serverEntries significa que ha sido eliminada en otro dispositivo y debe borrarse localmente.
         const currentProduct = state.products.find(sp => sp.id === p.id);
         const pendingEntries = (currentProduct && Array.isArray(currentProduct.entries))
-          ? currentProduct.entries.filter(le => !serverEntries.some(se => se.id === le.id))
+          ? currentProduct.entries.filter(le => {
+              const isTempId = !le.id || le.id.includes('-') || le.id.length !== 15;
+              return isTempId && !serverEntries.some(se => se.id === le.id);
+            })
           : [];
 
         const entries = [...serverEntries, ...pendingEntries];
@@ -1517,7 +1524,7 @@
   // --- Inicialización PWA ---
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-      navigator.serviceWorker.register('./sw.js?v=1.04')
+      navigator.serviceWorker.register('./sw.js?v=1.11')
         .then(reg => {
           console.log('PWA lista, scope:', reg.scope);
           // Forzar comprobación inmediata de actualización del Service Worker
