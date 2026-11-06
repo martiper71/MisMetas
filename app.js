@@ -220,21 +220,45 @@
     }
   }
 
-  // Suscripción en tiempo real a cambios de PocketBase
-  function subscribeRealtime() {
-    if (!pb || !state.user) return;
+  // Suscripción en tiempo real a cambios de PocketBase y reconexión activa
+  let isSubscribed = false;
+  async function subscribeRealtime() {
+    if (!pb || !state.user || isSubscribed) return;
     try {
-      pb.collection('products').subscribe('*', async () => {
+      await pb.collection('products').subscribe('*', async () => {
         await loadDataFromPocketBase();
         refreshCurrentView();
-      }).catch(err => console.warn('Realtime products warning:', err));
+      });
 
-      pb.collection('entries').subscribe('*', async () => {
+      await pb.collection('entries').subscribe('*', async () => {
         await loadDataFromPocketBase();
         refreshCurrentView();
-      }).catch(err => console.warn('Realtime entries warning:', err));
+      });
+      isSubscribed = true;
     } catch (err) {
       console.warn('No se pudo suscribir a realtime de PocketBase:', err);
+      isSubscribed = false;
+    }
+  }
+
+  // Sincronización manual bajo demanda disparada por el usuario o al volver a la app
+  async function triggerManualSync(buttonElement) {
+    if (!pb || !state.user) return;
+    const icons = document.querySelectorAll('#btn-sync-catalog .chip-icon, #btn-sync-detail .chip-icon');
+    icons.forEach(ic => ic.style.animation = 'spin 0.8s linear infinite');
+    try {
+      await loadDataFromPocketBase();
+      refreshCurrentView();
+      // Asegurar que la suscripción realtime siga viva
+      if (!isSubscribed) {
+        await subscribeRealtime();
+      }
+    } catch (e) {
+      console.warn('Error en sincronización manual:', e);
+    } finally {
+      setTimeout(() => {
+        icons.forEach(ic => ic.style.animation = '');
+      }, 500);
     }
   }
 
@@ -1343,6 +1367,26 @@
     }
   }
 
+  // Botones de sincronización manual
+  document.querySelectorAll('#btn-sync-catalog, #btn-sync-detail').forEach(btn => {
+    btn.addEventListener('click', e => {
+      e.preventDefault();
+      triggerManualSync(btn);
+    });
+  });
+
+  // Re-sincronización automática al volver a la pestaña/app en iOS Safari
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible' && state.user) {
+      triggerManualSync();
+    }
+  });
+  window.addEventListener('focus', () => {
+    if (state.user) {
+      triggerManualSync();
+    }
+  });
+
   // Abrir modal de usuario
   document.querySelectorAll('#btn-user-profile, #btn-user-profile-detail').forEach(btn => {
     btn.addEventListener('click', e => {
@@ -1524,7 +1568,7 @@
   // --- Inicialización PWA ---
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-      navigator.serviceWorker.register('./sw.js?v=1.11')
+      navigator.serviceWorker.register('./sw.js?v=1.12')
         .then(reg => {
           console.log('PWA lista, scope:', reg.scope);
           // Forzar comprobación inmediata de actualización del Service Worker

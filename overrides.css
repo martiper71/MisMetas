@@ -1,1 +1,22 @@
-/* Estilos adicionales de overrides si fueran necesarios */
+/* Estilos adicionales de overrides */
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+#btn-sync-catalog, #btn-sync-detail {
+  font-weight: 500;
+}
+
+@media (max-width: 480px) {
+  #btn-sync-catalog .sync-text, #btn-sync-detail .sync-text {
+    display: none;
+  }
+  #btn-sync-catalog, #btn-sync-detail {
+    padding: 6px 10px;
+  }
+}
