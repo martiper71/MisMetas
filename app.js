@@ -129,6 +129,11 @@
         return true;
       }
 
+      const prevSnapshot = JSON.stringify(state.products.map(p => ({
+        id: p.id,
+        entries: (p.entries || []).map(e => ({ id: e.id, amount: e.amount, date: e.date, type: e.type, concept: e.concept }))
+      })));
+
       state.products = pRecords.map(p => {
         let imgSrc = p.custom_image || '';
         if (p.image) {
@@ -174,9 +179,14 @@
         };
       });
 
+      const newSnapshot = JSON.stringify(state.products.map(p => ({
+        id: p.id,
+        entries: (p.entries || []).map(e => ({ id: e.id, amount: e.amount, date: e.date, type: e.type, concept: e.concept }))
+      })));
+
       saveLocalData();
       isOnline = true;
-      return true;
+      return prevSnapshot !== newSnapshot;
     } catch (err) {
       console.warn('PocketBase offline o no accesible:', err);
       isOnline = false;
@@ -222,9 +232,17 @@
 
   // Suscripción en tiempo real a cambios de PocketBase y reconexión activa
   let isSubscribed = false;
+  let pollingIntervalId = null;
+
   async function subscribeRealtime() {
-    if (!pb || !state.user || isSubscribed) return;
+    if (!pb || !state.user) return;
     try {
+      // Si ya existían listeners previos en PocketBase SDK, desuscribir de forma limpia
+      try {
+        await pb.collection('products').unsubscribe('*');
+        await pb.collection('entries').unsubscribe('*');
+      } catch (_) {}
+
       await pb.collection('products').subscribe('*', async () => {
         await loadDataFromPocketBase();
         refreshCurrentView();
@@ -239,6 +257,22 @@
       console.warn('No se pudo suscribir a realtime de PocketBase:', err);
       isSubscribed = false;
     }
+
+    // Iniciar polling de respaldo periódico automático (cada 5s cuando la pestaña esté activa)
+    // Esto garantiza sincronización perfecta incluso si SSE se suspende en iOS Safari o Mac
+    startAutoPolling();
+  }
+
+  function startAutoPolling() {
+    if (pollingIntervalId) clearInterval(pollingIntervalId);
+    pollingIntervalId = setInterval(async () => {
+      if (document.visibilityState === 'visible' && state.user && pb) {
+        const changed = await loadDataFromPocketBase();
+        if (changed) {
+          refreshCurrentView();
+        }
+      }
+    }, 5000);
   }
 
   // Sincronización manual bajo demanda disparada por el usuario o al volver a la app
@@ -394,6 +428,51 @@
   const viewCatalog = document.querySelector('#view-catalog');
   const viewDetail = document.querySelector('#view-detail');
 
+  // Modal de confirmación estilizado y no bloqueante (funciona 100% en iOS Safari)
+  const confirmModal = document.querySelector('#confirm-modal');
+  const confirmTitle = document.querySelector('#confirm-modal-title');
+  const confirmDesc = document.querySelector('#confirm-modal-desc');
+  const btnConfirmOk = document.querySelector('#btn-confirm-ok');
+  const btnConfirmCancel = document.querySelector('#btn-confirm-cancel');
+  let currentConfirmResolver = null;
+
+  function askConfirmation({ title = '¿Estás seguro?', message = 'Esta acción no se puede deshacer.', okText = 'Eliminar', danger = true }) {
+    return new Promise(resolve => {
+      if (!confirmModal) {
+        resolve(window.confirm(`${title}\n${message}`));
+        return;
+      }
+      currentConfirmResolver = resolve;
+      if (confirmTitle) confirmTitle.textContent = title;
+      if (confirmDesc) confirmDesc.textContent = message;
+      if (btnConfirmOk) {
+        btnConfirmOk.textContent = okText;
+        btnConfirmOk.className = danger ? 'confirm-dialog-danger' : 'btn-primary';
+      }
+      openModal(confirmModal);
+    });
+  }
+
+  if (btnConfirmOk) {
+    btnConfirmOk.addEventListener('click', () => {
+      closeModal(confirmModal);
+      if (currentConfirmResolver) {
+        currentConfirmResolver(true);
+        currentConfirmResolver = null;
+      }
+    });
+  }
+
+  if (btnConfirmCancel) {
+    btnConfirmCancel.addEventListener('click', () => {
+      closeModal(confirmModal);
+      if (currentConfirmResolver) {
+        currentConfirmResolver(false);
+        currentConfirmResolver = null;
+      }
+    });
+  }
+
   function showCatalog() {
     state.activeProductId = null;
     viewCatalog.hidden = false;
@@ -487,7 +566,12 @@
       delBtn.innerHTML = '×';
       delBtn.addEventListener('click', async e => {
         e.stopPropagation();
-        if (confirm(`¿Eliminar la meta "${product.name}" y todo su historial de ahorro?`)) {
+        const confirmed = await askConfirmation({
+          title: `¿Eliminar "${product.name}"?`,
+          message: 'Se eliminará esta meta de ahorro y todo su historial de movimientos.',
+          okText: 'Eliminar meta'
+        });
+        if (confirmed) {
           if (pb && product.id && !product.id.startsWith('prod-')) {
             try {
               await pb.collection('products').delete(product.id);
@@ -770,17 +854,26 @@
       deleteBtn.innerHTML = '×';
       deleteBtn.title = 'Eliminar';
       deleteBtn.addEventListener('click', async () => {
-        if (confirm(`¿Eliminar "${item.concept}" (${euros(item.amount)})?`)) {
-          if (pb && item.id && item.id.length === 15) {
+        const confirmed = await askConfirmation({
+          title: `¿Eliminar "${item.concept}"?`,
+          message: `Se eliminará este movimiento de ${euros(item.amount)}.`,
+          okText: 'Eliminar movimiento'
+        });
+        if (confirmed) {
+          // 1. Actualizar estado local inmediatamente para respuesta instantánea en pantalla
+          const entryIdToDelete = item.id;
+          product.entries = product.entries.filter(e => e.id !== entryIdToDelete);
+          saveLocalData();
+          renderDetail();
+
+          // 2. Si tiene ID registrado en PocketBase, eliminar del servidor
+          if (pb && entryIdToDelete && !entryIdToDelete.includes('-')) {
             try {
-              await pb.collection('entries').delete(item.id);
+              await pb.collection('entries').delete(entryIdToDelete);
             } catch (err) {
               console.warn('Error borrando en PocketBase:', err);
             }
           }
-          product.entries = product.entries.filter(e => e.id !== item.id);
-          saveLocalData();
-          renderDetail();
         }
       });
 
@@ -1568,7 +1661,7 @@
   // --- Inicialización PWA ---
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-      navigator.serviceWorker.register('./sw.js?v=1.12')
+      navigator.serviceWorker.register('./sw.js?v=1.13')
         .then(reg => {
           console.log('PWA lista, scope:', reg.scope);
           // Forzar comprobación inmediata de actualización del Service Worker

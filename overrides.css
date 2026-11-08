@@ -12,6 +12,90 @@
   font-weight: 500;
 }
 
+/* Optimización táctil para iPhone y dispositivos móviles */
+.entry-actions {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.entry-btn {
+  min-width: 36px;
+  min-height: 36px;
+  padding: 6px;
+  border-radius: 8px;
+  font-size: 16px;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.entry-btn.delete {
+  color: #c53030;
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.entry-btn.delete:active {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+/* Modal de confirmación estilizado y compatible con iOS */
+.confirm-dialog-content {
+  max-width: 360px;
+  text-align: center;
+  padding: 24px;
+}
+
+.confirm-dialog-icon {
+  font-size: 36px;
+  margin-bottom: 12px;
+}
+
+.confirm-dialog-title {
+  font-size: 17px;
+  font-weight: 700;
+  color: #1f2937;
+  margin-bottom: 8px;
+}
+
+.confirm-dialog-desc {
+  font-size: 14px;
+  color: #4b5563;
+  margin-bottom: 20px;
+  line-height: 1.4;
+}
+
+.confirm-dialog-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.confirm-dialog-actions button {
+  flex: 1;
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  min-height: 42px;
+  touch-action: manipulation;
+}
+
+.confirm-dialog-cancel {
+  background: #f3f4f6;
+  color: #374151;
+}
+
+.confirm-dialog-danger {
+  background: #dc2626;
+  color: #ffffff;
+}
+
 @media (max-width: 480px) {
   #btn-sync-catalog .sync-text, #btn-sync-detail .sync-text {
     display: none;

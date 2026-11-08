@@ -20,8 +20,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=1.12">
-  <link rel="stylesheet" href="overrides.css?v=1.12">
+  <link rel="stylesheet" href="styles.css?v=1.13">
+  <link rel="stylesheet" href="overrides.css?v=1.13">
 </head>
 <body>
   <canvas id="celebration-canvas" class="celebration-canvas" aria-hidden="true"></canvas>
@@ -37,7 +37,7 @@
             <img class="brand-logo" src="media/favicon.png" alt="" width="22" height="22">
             <span>MIS METAS DE AHORRO</span>
           </a>
-          <span class="app-version-badge" id="app-version">v1.12</span>
+          <span class="app-version-badge" id="app-version">v1.13</span>
         </div>
         <div class="topbar-actions">
           <button type="button" class="action-chip" id="btn-sync-catalog" title="Sincronizar datos con servidor">
@@ -516,7 +516,20 @@
     </div>
   </div>
 
+  <!-- Modal de confirmación genérico para acciones críticas (ej. borrar movimientos) -->
+  <div class="modal-backdrop" id="confirm-modal" hidden>
+    <div class="modal-card confirm-dialog-content" role="dialog" aria-labelledby="confirm-modal-title">
+      <div class="confirm-dialog-icon" id="confirm-modal-icon">🗑️</div>
+      <h3 class="confirm-dialog-title" id="confirm-modal-title">¿Eliminar elemento?</h3>
+      <p class="confirm-dialog-desc" id="confirm-modal-desc">Esta acción no se puede deshacer.</p>
+      <div class="confirm-dialog-actions">
+        <button type="button" class="confirm-dialog-cancel" id="btn-confirm-cancel">Cancelar</button>
+        <button type="button" class="confirm-dialog-danger" id="btn-confirm-ok">Eliminar</button>
+      </div>
+    </div>
+  </div>
+
   <script src="pocketbase.umd.js"></script>
-  <script src="app.js?v=1.12"></script>
+  <script src="app.js?v=1.13"></script>
 </body>
 </html>
